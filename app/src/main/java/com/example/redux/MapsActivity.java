@@ -205,31 +205,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void handleMapLongClick(LatLng latLng) {
-        /*
-        LatLng school = new LatLng(37.3272,-122.022);
-        LatLng apartment = new LatLng(37.3209,-122.0249);
-        addMarker(school);
-        addMarker(apartment);
-
-        addCircle(school, GEOFENCE_RADIUS);
-        addCircle(apartment, GEOFENCE_RADIUS);
-       // addGeofence(latLng, GEOFENCE_RADIUS);
-        addGeofence(school,GEOFENCE_RADIUS,"Selangor");
-        addGeofence(apartment,GEOFENCE_RADIUS,"Apartment");
-       */
-
 
        initArea();
     }
 
     private void initArea(){
-        /*
 
-        geoAdsArea = new ArrayList<>();
-        geoAdsArea.add(new LatLng(37.3272,-122.022));
-        geoAdsArea.add(new LatLng(37.3209,-122.0249));
-
-         */
         listener = this;
         myCity = FirebaseDatabase.getInstance()
                 .getReference("GeoFence")
@@ -254,34 +235,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-
-        adsarray = new ArrayList<>();
-        adsarray.add(1);
-        adsarray.add(3);
-        adsarray.add(5);
-
-        /*
-        FirebaseDatabase.getInstance()
-                .getReference("Advertisement")
-                .child("100")
-                .setValue(adsarray)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(MapsActivity.this, "Updated!",Toast.LENGTH_SHORT).show();
-
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MapsActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-         */
-
-
 
 
     }
@@ -425,6 +378,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
 
+        player.setPlayWhenReady(false);
+        player.prepare();
+
+
 
 
 
@@ -449,24 +406,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
            }
 
-           @Override
-           public void onPlaybackStateChanged(int state) {
-               /*
-               if(state == Player.STATE_ENDED){
-                   if(AdsplayerLocationState.equals("EnterGeofence")){
-                       GeofenceBroadcastReceiver geofenceBroadcastReceiver = new GeofenceBroadcastReceiver();
-                       geofenceBroadcastReceiver.geofenceTrigger(geofenceBroadcastReceiver.geofenceDetected,AdsplayerLocationState);
-                       
-                   }
-                   if(AdsplayerLocationState.equals("ExitGeofence")|AdsplayerLocationState.equals("BootUp")){
-                       GeofenceBroadcastReceiver geofenceBroadcastReceiver = new GeofenceBroadcastReceiver();
-                       geofenceBroadcastReceiver.geofenceTrigger("FixedAds",AdsplayerLocationState);
-                   }
-               }
-                */
-
-
-           }
 
 
        });
