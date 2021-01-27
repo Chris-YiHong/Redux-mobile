@@ -14,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.example.redux.Interface.IOnLoadLocationListener;
@@ -39,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import android.os.Build;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
@@ -49,8 +52,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.annotation.Target;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, IOnLoadLocationListener {
@@ -60,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GeofencingClient geofencingClient;
     private GeofenceHelper geofenceHelper;
     private DatabaseReference myCity;
+    private DatabaseReference mDatabase;
     private IOnLoadLocationListener listener;
     private List<LatLng> geoAdsArea;
     private List<Integer> adsarray;
@@ -75,8 +83,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private long playbackPosition = 0;
 
     PlayerView playerView;
-
-
 
 
     @Override
@@ -107,9 +113,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             initArea();
         }
-
-
+        initializePlayer();
+        hideSystemUi();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                emptyCheck();
+            }
+        }, 3000);
     }
+
 
 
     /**
@@ -121,19 +134,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         // Add a marker in Sydney and move the camera
         LatLng wheaton = new LatLng(37.3248, -122.0232);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wheaton, 16));
-
         enableUserLocation();
         mMap.setOnMapLongClickListener(this);
-
-
-
     }
 
     private void enableUserLocation() {
@@ -205,7 +214,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void handleMapLongClick(LatLng latLng) {
-
        initArea();
     }
 
@@ -336,6 +344,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         playerView.setPlayer(player);
 
 
+
+/*
+
             databaseReference = FirebaseDatabase.getInstance()
                     .getReference("Advertisement")
                     .child("FixedAds");
@@ -366,9 +377,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     long currentPlaylistTotal = player.getMediaItemCount();
                     Log.d(TAG, "Total Video in the list: " + currentPlaylistTotal);
                     Log.d(TAG, "CurrentPosition " + currentPosition);
-
-
-
                 }
 
                 @Override
@@ -378,59 +386,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
 
-        player.setPlayWhenReady(false);
-        player.prepare();
 
 
 
-
-
+*/
 
        player.addListener(new Player.EventListener() {
 
            @Override
            public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+               getLog();
+               Date currentTime = Calendar.getInstance().getTime();
+               MediaItem currentItem = player.getCurrentMediaItem();
+
+
                long currentPosition = MapsActivity.player.getCurrentWindowIndex();
                long currentPlaylistTotal = MapsActivity.player.getMediaItemCount();
 
                if(player.getCurrentPosition() != 0)
                    player.removeMediaItem(0);
 
-               Log.d(TAG, currentPosition + " AND "+ currentPlaylistTotal );
+               Log.d(TAG, currentPosition + " AND "+ currentPlaylistTotal+" Name : "+ "Time :" + currentTime);
 
                if (currentPlaylistTotal == 2) {
                     GeofenceBroadcastReceiver geofenceBroadcastReceiver = new GeofenceBroadcastReceiver();
                     geofenceBroadcastReceiver.geofenceTrigger();
+
                }
-
-
            }
-
-
 
        });
 
+
+
     }
 
-
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (Util.SDK_INT >= 24) {
-            initializePlayer();
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        hideSystemUi();
-        if ((Util.SDK_INT < 24 || player == null)) {
-            initializePlayer();
-        }
-    }
 
     @SuppressLint("InlinedApi")
     private void hideSystemUi() {
@@ -461,5 +451,65 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void emptyCheck(){
+        if(player.getMediaItemCount()==0){
+            databaseReference = FirebaseDatabase.getInstance()
+                    .getReference("Advertisement")
+                    .child("FixedAds");
 
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                List<Integer> adsArray = new ArrayList<>();
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot locationSnapShot : snapshot.getChildren())
+                    {
+                        int adsArrayretrieve = Integer.parseInt(locationSnapShot.getValue().toString());
+                        adsArray.add(adsArrayretrieve);
+
+                    }
+                    // Collections.shuffle(adsArray);
+
+                    for(int i = 0;  i < adsArray.size(); i++){
+                        VideoPlayerPathStorage videoPlayerPathStorage = new VideoPlayerPathStorage();
+
+                        player.addMediaItem(videoPlayerPathStorage.VideoPlayerSet(adsArray.get(i)));
+
+
+                    }
+
+                    player.setPlayWhenReady(true);
+                    player.prepare();
+                    long currentPosition = player.getCurrentWindowIndex();
+                    long currentPlaylistTotal = player.getMediaItemCount();
+                    Log.d(TAG, "Total Video in the list: " + currentPlaylistTotal);
+                    Log.d(TAG, "CurrentPosition " + currentPosition);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+    // Saving Logs to Database
+
+    private void getLog() {
+
+        MediaItem currentItem = player.getCurrentMediaItem();
+        String id = currentItem.mediaId;
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+        String start = df.format(Calendar.getInstance().getTime());
+        int timeMs=(int) player.getDuration();
+        int totalSeconds = timeMs / 1000;
+
+        Log.d(TAG,  "Time: " + start + "duration: " + totalSeconds + " seconds" + "id " + id);
+
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("Logs")
+                .child("Time: " + start + "duration: " + totalSeconds + " seconds"+" id: " + id + " " )
+                .setValue("Log");
+
+    }
 }

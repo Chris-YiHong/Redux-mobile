@@ -16,7 +16,10 @@ public class VideoPlayerPathStorage {
     public Uri uriArray [] ={uri1,uri2,uri3,uri4,uri5,uri6};
 
     public MediaItem VideoPlayerSet (int adsNo){
-        MediaItem mediaItem = MediaItem.fromUri(uriArray[adsNo]);
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(uriArray[adsNo])
+                .setMediaId(""+(adsNo+1))
+                .build();
 
         return mediaItem;
     }

@@ -33,7 +33,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     public static String geofenceDetected = null;
     public static String AdsplayerLocationState = "ExitGeofence";
-    public static boolean firstbootup = true;
 
 
 
@@ -93,7 +92,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                             adsArray.add(adsArrayretrieve);
 
                         }
-                        Collections.shuffle(adsArray);
+                        //Collections.shuffle(adsArray);
 
                         for (int i = 0; i < adsArray.size(); i++) {
                             VideoPlayerPathStorage videoPlayerPathStorage = new VideoPlayerPathStorage();
@@ -102,11 +101,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
 
                         }
-                        if(firstbootup == true){
-                            MapsActivity.player.next();
-                            MapsActivity.player.removeMediaItem(0);
-                            firstbootup = false;
-                        }
+
                         MapsActivity.player.setPlayWhenReady(true);
                         MapsActivity.player.prepare();
 
