@@ -12,6 +12,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ViewFlipper;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class Dashboard extends AppCompatActivity {
     String user_phoneNo,user_email,user_username,user_name,user_password;
     ViewFlipper viewFlipper;
@@ -38,9 +41,21 @@ public class Dashboard extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            openPlayVideo();
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("PlayControl").child("Playing");
+
+            myRef.child("0").setValue(0);
         }
     });
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("PlayControl").child("Playing");
+
+                myRef.child("0").setValue(2);
+            }
+        });
         btn_userprofile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
